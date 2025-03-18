@@ -9,6 +9,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 {
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
+builder.Services.AddCors();
 
 var app = builder.Build();
 
@@ -16,6 +17,13 @@ var app = builder.Build();
 // app.UseAuthorization();
 
 app.MapControllers();
+
+app.UseCors(x =>
+    x.AllowAnyHeader()
+     .AllowAnyMethod()
+     .WithOrigins("http://localhost:3000", "https://localhost:3000")
+     .AllowCredentials()
+);
 
 // seed data
     using var scope = app.Services.CreateScope();
