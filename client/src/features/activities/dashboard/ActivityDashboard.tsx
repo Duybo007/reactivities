@@ -11,8 +11,6 @@ export default function ActivityDashboard({
   editMode,
   openForm,
   closeForm,
-  submitForm,
-  deleteActivity,
 }: {
   activities: Activity[];
   selectActivity: (id: string) => void;
@@ -21,8 +19,6 @@ export default function ActivityDashboard({
   editMode: boolean;
   openForm: (id: string) => void;
   closeForm: () => void;
-  submitForm: (activity: Activity) => void;
-  deleteActivity: (id: string) => void;
 }) {
   return (
     <Grid2 container spacing={3}>
@@ -30,13 +26,12 @@ export default function ActivityDashboard({
         <ActivityList
           activities={activities}
           selectActivity={selectActivity}
-          deleteActivity={deleteActivity}
         />
       </Grid2>
       <Grid2 size={5}>
         {selectedActivity && !editMode && (
           <ActivityDetail
-            activity={selectedActivity}
+            selectedActivity={selectedActivity}
             cancelSelectActivity={cancelSelectActivity}
             openForm={openForm}
           />
@@ -45,7 +40,6 @@ export default function ActivityDashboard({
           <ActivityForm
             closeForm={closeForm}
             activity={selectedActivity}
-            submitForm={submitForm}
           />
         )}
       </Grid2>

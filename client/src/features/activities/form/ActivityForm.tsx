@@ -1,28 +1,33 @@
 import { Box, Button, Paper, TextField, Typography } from "@mui/material";
 import { FormEvent } from "react";
+import { useActivities } from "../../../lib/hooks/useActivities";
 
 export default function ActivityForm({
   activity,
   closeForm,
-  submitForm
 }: {
   activity?: Activity;
   closeForm: () => void;
-  submitForm: (activity: Activity) => void
 }) {
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const { updateActivity, createActivity } = useActivities();
+
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    const formData = new FormData(event.currentTarget)
+    const formData = new FormData(event.currentTarget);
 
-    const data: {[key:string]: FormDataEntryValue} = {}
+    const data: { [key: string]: FormDataEntryValue } = {};
     formData.forEach((value, key) => {
-        data[key] = value
-    })
+      data[key] = value;
+    });
 
-    if(activity) data.id = activity.id
-    
-    submitForm(data as unknown as Activity);
+    if (activity) {
+      data.id = activity.id;
+      await updateActivity.mutateAsync(data as unknown as Activity);
+    } else {
+      await createActivity.mutateAsync(data as unknown as Activity);
+    }
+    closeForm();
   };
   return (
     <Paper sx={{ borderRadius: 3, padding: 3 }}>
@@ -57,7 +62,11 @@ export default function ActivityForm({
           label="Date"
           name="date"
           type="date"
-          defaultValue={activity?.date}
+          defaultValue={
+            activity?.date
+              ? new Date(activity.date).toISOString().split("T")[0]
+              : new Date().toISOString().split("T")[0]
+          }
         ></TextField>
         <TextField
           label="City"
@@ -73,7 +82,12 @@ export default function ActivityForm({
           <Button color="inherit" onClick={closeForm}>
             Cancel
           </Button>
-          <Button color="success" variant="contained" type="submit">
+          <Button
+            color="success"
+            variant="contained"
+            type="submit"
+            disabled={updateActivity.isPending || createActivity.isPending}
+          >
             Submit
           </Button>
         </Box>

@@ -3,12 +3,10 @@ import ActivityCard from "./ActivityCard";
 
 export default function ActivityList({
   activities,
-  selectActivity,
-  deleteActivity
+  selectActivity
 }: {
   activities: Activity[];
   selectActivity: (id: string) => void;
-  deleteActivity: (id: string) => void;
 }) {
   return (
     <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
@@ -17,7 +15,6 @@ export default function ActivityList({
           key={activity.id}
           activity={activity}
           selectActivity={selectActivity}
-          deleteActivity={deleteActivity}
         />
       ))}
     </Box>
