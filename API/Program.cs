@@ -1,5 +1,8 @@
+using API.Middleware;
+using Application.Activities.Validators;
 using Application.Core;
 using Application.Queries;
+using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using Persistence;
 
@@ -12,14 +15,20 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
 builder.Services.AddCors();
-builder.Services.AddMediatR(x => x.RegisterServicesFromAssemblyContaining<GetActivityList.Handler>());
+builder.Services.AddMediatR(x =>
+{
+    x.RegisterServicesFromAssemblyContaining<GetActivityList.Handler>();
+    x.AddOpenBehavior(typeof(ValidationBehaviour<,>));
+});
 builder.Services.AddAutoMapper(typeof(MappingProfiles).Assembly);
+// builder.Services.AddValidatorsFromAssemblyContaining<CreateActivityValidator>();
+builder.Services.AddTransient<ExceptionMiddleware>();
 
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 // app.UseAuthorization();
-
+// app.UseMiddleware<ExceptionMiddleware>();
 app.MapControllers();
 
 app.UseCors(x =>
@@ -30,8 +39,8 @@ app.UseCors(x =>
 );
 
 // seed data
-    using var scope = app.Services.CreateScope();
-    var services = scope.ServiceProvider;
+using var scope = app.Services.CreateScope();
+var services = scope.ServiceProvider;
 try
 {
     var context = services.GetRequiredService<AppDbContext>();
