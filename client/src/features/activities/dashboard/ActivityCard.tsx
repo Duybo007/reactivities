@@ -32,7 +32,7 @@ export default function ActivityCard({ activity }: { activity: Activity }) {
           }}
           subheader={
             <>
-              Hosted by <Link to={`/profiles/bob`}></Link>
+              Hosted by <Link to={`/profiles/bob`}> Bob</Link>
             </>
           }
         />
