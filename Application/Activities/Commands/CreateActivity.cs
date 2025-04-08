@@ -1,6 +1,6 @@
-using System;
+
 using Application.Activities.DTOs;
-using Application.Core;
+using Application.Interfaces;
 using AutoMapper;
 using Domain;
 using MediatR;
@@ -17,14 +17,25 @@ public class CreateActivity
         public required CreateActivityDto CreateActivityDto { get; set; }
     }
     // public class Handler(AppDbContext context, IMapper mapper) : IRequestHandler<Command, Result<string>>
-    public class Handler(AppDbContext context, IMapper mapper) : IRequestHandler<Command, string>
+    public class Handler(AppDbContext context, IMapper mapper, IUseAccessor userAccessor) : IRequestHandler<Command, string>
     {
         // public async Task<Result<string>> Handle(Command request, CancellationToken cancellationToken)
         public async Task<string> Handle(Command request, CancellationToken cancellationToken)
         {
+            var user = await userAccessor.GetUserAsync();
+
             var activity = mapper.Map<Activity>(request.CreateActivityDto);
             // context.Activities.Add(activity);
             context.Activities.Add(activity);
+
+            var attendee = new ActivityAttendee
+            {
+                ActivityId = activity.Id,
+                UserId = user.Id,
+                IsHost = true
+            };
+
+            activity.Attendees.Add(attendee);
 
             var res = await context.SaveChangesAsync(cancellationToken) > 0;
 
